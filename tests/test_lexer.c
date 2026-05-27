@@ -9,6 +9,12 @@ void tearDown(void) {
 }
 
 void test_Lexer(void) {
+   Lexer *lex;
+   lex = create_Lexer();
+   TEST_ASSERT_NULL(lex->include);
+   TEST_ASSERT_NULL(lex->next);
+   free_Lexer(&lex);
+   TEST_ASSERT_NULL(lex);
 }
 
 int main(void) {
