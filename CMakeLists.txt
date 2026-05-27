@@ -15,6 +15,7 @@ add_executable(test_lexer
 	tests/unity.c
 	tests/test_lexer.c
 	src/Lexer.c
+	src/debug_malloc.c
 )
 
 add_executable(ccli

@@ -11,4 +11,5 @@ typedef struct Lexer{
 } Lexer;
 
 Lexer* create_Lexer();
+Lexer* create_Lexer_from_String(const char*);
 void free_Lexer(Lexer**);
