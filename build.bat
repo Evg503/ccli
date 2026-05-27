@@ -1,4 +1,4 @@
-
+@echo off
 set CONFIG=Debug
 
 if not "%1"=="" (
