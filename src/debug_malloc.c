@@ -25,7 +25,7 @@ malloc_stat allocated = {0};
 void* evg_malloc(size_t size)
 {
     void *p = system_malloc(size);
-    printf("Alloc   %5zu bytes by %p\n", size, p);
+    printf("Alloc   %9zu bytes by %p\n", size, p);
     malloc_entry *entry= system_malloc(sizeof *entry);
     entry->next = allocated.entries;
     entry->p = p;
@@ -84,5 +84,5 @@ void evg_free(void* p){
         }
     }
     allocated.current -= size;
-    printf("DeAlloc %5zu bytes by %p\n", size, p);
+    printf("DeAlloc %9zu bytes by %p\n", size, p);
 }

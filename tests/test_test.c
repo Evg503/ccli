@@ -9,6 +9,7 @@ void setUp(void) {
 }
 
 void tearDown(void) {
+    print_malloc_stats();
 }
 
 void test_add_numbers(void) {
@@ -23,6 +24,24 @@ void test_malloc() {
     TEST_ASSERT_TRUE(check_allocs());
 }
 
+void test_malloc2() {
+    void *p1 = malloc(10);
+    void *p2 = malloc(100);
+    void *p3 = malloc(1000);
+    void *p4 = malloc(10000);
+    void *p5 = malloc(100000);
+    void *p6 = malloc(1000000);
+    TEST_ASSERT_FALSE(check_allocs());
+    print_malloc_stats();
+    free(p1);
+    free(p3);
+    free(p5);
+    free(p6);
+    free(p4);
+    free(p2);
+    TEST_ASSERT_TRUE(check_allocs());
+}
+
 void test_strdup() {
     char *str = strdup("Some const string");
     TEST_ASSERT_FALSE(check_allocs());
@@ -34,7 +53,7 @@ int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_add_numbers);
     RUN_TEST(test_malloc);
+    RUN_TEST(test_malloc2);
     RUN_TEST(test_strdup);
-    print_malloc_stats();
     return UNITY_END();
 }
