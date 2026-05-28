@@ -1,4 +1,5 @@
 #pragma once
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -12,9 +13,21 @@
 
 #define malloc evg_malloc
 #define free evg_free
+#define strdup evg_strdup
 
+#define calloc   evg_not_implemented
+#define realloc  evg_not_implemented
+#define strndup  evg_not_implemented
+#define asprintf evg_not_implemented
+#define getline  evg_not_implemented
+#define getdelim evg_not_implemented
+#define realpath evg_not_implemented
+ 
 
 void* evg_malloc(size_t size);
 void evg_free(void* p);
+char* evg_strdup(const char *s);
+
 void print_malloc_stats();
+bool check_allocs();
 

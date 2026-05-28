@@ -9,6 +9,7 @@ include_directories(include)
 add_executable(test_test 
 	tests/unity.c
 	tests/test_test.c
+	src/debug_malloc.c
 )
 
 add_executable(test_lexer 
