@@ -28,3 +28,22 @@ void free_Lexer(Lexer**lex)
         *lex = NULL;
     }
 }
+
+Token* get_next_token(Lexer* lexer)
+{
+    Token* token;
+    token = init_Token();
+    token->type = TOKEN_EOF;
+    return token;
+}
+
+Token* init_Token() {
+    Token * token = malloc(sizeof * token);
+    return  token;
+}
+
+void free_Token(Token** token) {
+    free(*token);
+    *token = NULL;
+
+}
