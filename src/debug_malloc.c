@@ -3,6 +3,7 @@
 #include <string.h>
 
 void*(*system_malloc)(size_t) = malloc;
+void*(*system_realloc)(void*, size_t) = realloc;
 void(*system_free)(void*) = free;
 
 #include <debug_malloc.h>
@@ -22,10 +23,7 @@ typedef struct malloc_stat {
 
 malloc_stat allocated = {0};
 
-void* evg_malloc(size_t size)
-{
-    void *p = system_malloc(size);
-    printf("Alloc   %9zu bytes by %p\n", size, p);
+static void add_stat(void*p, size_t size) {
     malloc_entry *entry= system_malloc(sizeof *entry);
     entry->next = allocated.entries;
     entry->p = p;
@@ -33,8 +31,30 @@ void* evg_malloc(size_t size)
     allocated.entries = entry;
     allocated.current +=size;
     allocated.full +=size;
-    if(allocated.max < allocated.current) 
+    if(allocated.max < allocated.current) {
         allocated.max = allocated.current;
+    }
+    printf("Alloc   %9zu bytes by %p\n", size, p);
+
+}
+static void remove_stat(void *p)
+{    size_t size = 0;
+    for(malloc_entry **pentry = &allocated.entries; *pentry; pentry = &(*pentry)->next) {
+        if((*pentry)->p == p){
+            size = (*pentry)->size;
+            malloc_entry *to_free = *pentry;
+            *pentry = (*pentry)->next;
+            system_free(to_free);
+            break;
+        }
+    }
+    allocated.current -= size;
+    printf("DeAlloc %9zu bytes by %p\n", size, p);
+}
+void* evg_malloc(size_t size)
+{
+    void *p = system_malloc(size);
+    add_stat(p, size);
     return p;
 }
 
@@ -71,18 +91,17 @@ bool check_allocs()
 {
     return allocated.current == 0;
 }
+
 void evg_free(void* p){
     system_free(p);
-    size_t size = 0;
-    for(malloc_entry **pentry = &allocated.entries; *pentry; pentry = &(*pentry)->next) {
-        if((*pentry)->p == p){
-            size = (*pentry)->size;
-            malloc_entry *to_free = *pentry;
-            *pentry = (*pentry)->next;
-            system_free(to_free);
-            break;
-        }
+    remove_stat(p);
+}
+
+char* evg_realloc(char *s, size_t size){
+    void *new_s = system_realloc(s, size);
+    if(new_s){
+        remove_stat(s);
+        add_stat(new_s, size);
     }
-    allocated.current -= size;
-    printf("DeAlloc %9zu bytes by %p\n", size, p);
+    return new_s;
 }

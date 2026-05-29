@@ -22,6 +22,10 @@ void test_malloc() {
     TEST_ASSERT_FALSE(check_allocs());
     free(p);
     TEST_ASSERT_TRUE(check_allocs());
+    p = malloc(24);
+    TEST_ASSERT_FALSE(check_allocs());
+    free(p);
+    TEST_ASSERT_TRUE(check_allocs());
 }
 
 void test_malloc2() {
@@ -41,6 +45,25 @@ void test_malloc2() {
     free(p2);
     TEST_ASSERT_TRUE(check_allocs());
 }
+void test_realloc() {
+    size_t capacity = 10;
+    char *p1 = malloc(capacity);
+    for(size_t i = 0; i < 256; ++i)
+    {
+        while (i>=capacity){
+            capacity*=2;
+            p1 = realloc(p1, capacity);
+        }
+        p1[i]=(char)i;
+    }
+    for(size_t i = 0; i < 256; ++i)
+    {
+        TEST_ASSERT(p1[i] == (char)i);
+    }
+    free(p1);
+    print_malloc_stats();
+    TEST_ASSERT_TRUE(check_allocs());
+}
 
 void test_strdup() {
     char *str = strdup("Some const string");
@@ -54,6 +77,7 @@ int main(void) {
     RUN_TEST(test_add_numbers);
     RUN_TEST(test_malloc);
     RUN_TEST(test_malloc2);
+    RUN_TEST(test_realloc);
     RUN_TEST(test_strdup);
     return UNITY_END();
 }
