@@ -33,6 +33,7 @@ set_target_properties(ccli PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
+include(CTest)
 enable_testing()
 add_test(NAME testTest COMMAND test_test)
 add_test(NAME testLexer COMMAND test_lexer)

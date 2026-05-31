@@ -4,6 +4,8 @@
 #include <Lexer.h>
 #include <debug_malloc.h>
 
+#include "Lexer.inc"
+
 static char * read_number(Lexer* lexer) {
     int start = lexer->pos;
     while (isdigit(lexer->source[lexer->pos]))
@@ -229,11 +231,35 @@ Token* get_next_token(Lexer* lexer)
 
     char c = (lexer && lexer->source)?lexer->source[lexer->pos]:0;
 
+    // skip whitespace and comment
+    while(c && (isspace(c) || c == '/')){
+        if(c == '/')
+        {
+            if(lexer->source[lexer->pos+1] == '/')
+            { // skip for /n or /eof
+                while(c && c !='\n' && c !='\r')
+                {
+                    c = lexer->source[++lexer->pos];
+                }
+            } else if(lexer->source[lexer->pos+1] == '/')
+            { //skip for */ or /eof
+                bool is_star = false;
+                while(c && !(is_star && c == '/'))
+                {
+                    is_star = c == '*';
+                    c = lexer->source[++lexer->pos];
+                }
+            } else
+            { // division?
+                break;
+            }
+        }
+        c = lexer->source[++lexer->pos];
+    }
     if (c == '\0') {
         token->type = TOKEN_EOF;
         return token;
     }
-    
     if (isdigit(c)) {
         token->value = read_number(lexer);
         token->type = TOKEN_NUMBER;
@@ -242,6 +268,14 @@ Token* get_next_token(Lexer* lexer)
     if (isalpha(c) || c == '_') {
         token->value = read_identifier(lexer);
         token->type = TOKEN_IDENTIFIER;
+        for(int i = 0; keywords[i].id != TOKEN_EOF; ++i)
+        {
+            if(strcmp(token->value, keywords[i].str) == 0)
+            {
+                token->type = keywords[i].id;
+                break;
+            }
+        }
         return token;
     }
         // Строки
@@ -308,8 +342,9 @@ void free_Token(Token** token) {
 >> 
 >>= 
 , 
-
-() 
-[]
+(
+) 
+[
+]
 
 */
