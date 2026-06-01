@@ -241,7 +241,7 @@ Token* get_next_token(Lexer* lexer)
                 {
                     c = lexer->source[++lexer->pos];
                 }
-            } else if(lexer->source[lexer->pos+1] == '/')
+            } else if(lexer->source[lexer->pos+1] == '*')
             { //skip for */ or /eof
                 bool is_star = false;
                 while(c && !(is_star && c == '/'))
@@ -285,6 +285,80 @@ Token* get_next_token(Lexer* lexer)
             token->type = TOKEN_STRING;
         else
             ; //error
+        return token;
+    }
+    // if(c == '\'') {
+    //     token->value = read_character(lexer);
+    //     if(token->value)
+    //         token->type = TOKEN_CHARACTER;
+    //     else
+    //         ; //error
+    // }  
+    if(c == '(') {
+        token->type = TOKEN_LPAREN;
+        lexer->pos++;
+        lexer->column++;
+        return token;
+    }
+    if(c == ')') {
+        token->type = TOKEN_RPAREN;
+        lexer->pos++;
+        lexer->column++;
+        return token;
+    }
+    if(c == '{') {
+        token->type = TOKEN_LBRACE;
+        lexer->pos++;
+        lexer->column++;
+        return token;
+    }
+    if(c == '}') {
+        token->type = TOKEN_RBRACE;
+        lexer->pos++;
+        lexer->column++;
+        return token;
+    }
+     if(c == ';') {
+        token->type = TOKEN_SEMICOLON;
+        lexer->pos++;
+        lexer->column++;
+        return token;
+    }
+     if(c == ',') {
+        token->type = TOKEN_COMMA;
+        lexer->pos++;
+        lexer->column++;
+        return token;
+    }
+     if(c == '+') {
+        token->type = TOKEN_PLUS;
+        lexer->pos++;
+        lexer->column++;
+        return token;
+    }
+     if(c == '-') {
+        token->type = TOKEN_MINUS;
+        lexer->pos++;
+        lexer->column++;
+        return token;
+    }
+     if(c == '*') {
+        token->type = TOKEN_STAR;
+        lexer->pos++;
+        lexer->column++;
+        return token;
+    }
+     if(c == '/') {
+        token->type = TOKEN_SLASH;
+        lexer->pos++;
+        lexer->column++;
+        return token;
+    }
+    if(c == '%') {
+        token->type = TOKEN_PERCENT;
+        lexer->pos++;
+        lexer->column++;
+
         return token;
     }
 
