@@ -1,4 +1,6 @@
 #pragma once
+#ifndef LEXER_H
+#define LEXER_H
 
 typedef enum {
     TOKEN_EOF = 0,
@@ -135,3 +137,5 @@ Token* get_next_token(Lexer* lexer);
 
 Token* init_Token();
 void free_Token(Token**);
+
+#endif // LEXER_H

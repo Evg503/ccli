@@ -481,6 +481,9 @@ Token* init_Token() {
 }
 
 void free_Token(Token** token) {
+    if (!token || !*token) {
+        return;
+    }
     free((*token)->value);
     free(*token);
     *token = NULL;
