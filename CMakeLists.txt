@@ -8,6 +8,7 @@ include_directories(include)
 
 add_executable(test_test 
 	tests/unity.c
+	tests/func_list.h
 	tests/test_test.c
 	src/debug_malloc.c
 )
@@ -16,6 +17,14 @@ add_executable(test_lexer
 	tests/unity.c
 	tests/test_lexer.c
 	src/Lexer.c
+	src/debug_malloc.c
+)
+
+add_executable(test_parser 
+	tests/unity.c
+	tests/test_parser.c
+	src/Lexer.c
+	src/Parser.c
 	src/debug_malloc.c
 )
 
@@ -29,6 +38,9 @@ set_target_properties(test_test PROPERTIES
 set_target_properties(test_lexer PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
+set_target_properties(test_parser PROPERTIES
+	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
 set_target_properties(ccli PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
@@ -37,6 +49,7 @@ include(CTest)
 enable_testing()
 add_test(NAME testTest COMMAND test_test)
 add_test(NAME testLexer COMMAND test_lexer)
+add_test(NAME testParser COMMAND test_parser)
 
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")

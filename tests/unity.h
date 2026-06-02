@@ -654,6 +654,24 @@ void verifyTest(void);
 #define TEST_ASSERT_NOT_EQUAL_MESSAGE(expected, actual, message)                                   UNITY_TEST_FAIL(__LINE__, UnityStrErrShorthand)
 #endif
 
+#define RUN_ALL_TESTS()\
+    do{ \
+        test_case_t* func_array = NULL; \
+        /* Кроссплатформенно получаем указатель на начало массива и его размер */\
+        size_t total = get_registered_functions(&func_array); \
+        \
+        printf("Найдено функций во время компиляции: %zu\n\n", total); \
+        \
+        /* Перебираем массив*/ \
+        for (size_t i = 0; i < total; i++) { \
+            /* Из-за особенностей выравнивания MSVC, между маркерами могут быть NULL-указатели*/ \
+            if (func_array[i].fn != NULL) { \
+                UnityDefaultTestRun(func_array[i].fn, func_array[i].name, __LINE__); \
+            } \
+        } \
+    } while(0)
+
+
 /* end of UNITY_FRAMEWORK_H */
 #ifdef __cplusplus
 }

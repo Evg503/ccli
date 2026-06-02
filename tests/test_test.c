@@ -1,4 +1,6 @@
 #include "unity.h"
+#include "func_list.h"
+
 #include <debug_malloc.h>
 
 int add(int a, int b) {
@@ -12,12 +14,12 @@ void tearDown(void) {
     print_malloc_stats();
 }
 
-void test_add_numbers(void) {
+REG_FUNCTION(test_add_numbers) {
     int result = add(2, 3);
     TEST_ASSERT_EQUAL(5, result);
 }
 
-void test_malloc() {
+REG_FUNCTION(test_malloc) {
     void *p = malloc(42);
     TEST_ASSERT_FALSE(check_allocs());
     free(p);
@@ -28,7 +30,7 @@ void test_malloc() {
     TEST_ASSERT_TRUE(check_allocs());
 }
 
-void test_malloc2() {
+REG_FUNCTION(test_malloc2) {
     void *p1 = malloc(10);
     void *p2 = malloc(100);
     void *p3 = malloc(1000);
@@ -45,7 +47,7 @@ void test_malloc2() {
     free(p2);
     TEST_ASSERT_TRUE(check_allocs());
 }
-void test_realloc() {
+REG_FUNCTION(test_realloc) {
     size_t capacity = 10;
     char *p1 = malloc(capacity);
     for(size_t i = 0; i < 256; ++i)
@@ -65,7 +67,31 @@ void test_realloc() {
     TEST_ASSERT_TRUE(check_allocs());
 }
 
-void test_strdup() {
+REG_FUNCTION(test_strdup) {
+    char *str = strdup("Some const string");
+    TEST_ASSERT_FALSE(check_allocs());
+    free(str);
+    TEST_ASSERT_TRUE(check_allocs());
+}
+// Регистрируем и сразу пишем тело (работает в любых .c файлах проекта)
+REG_FUNCTION(print_apple) {
+    printf("Apple\n");
+    char *str = strdup("Some const string");
+    TEST_ASSERT_FALSE(check_allocs());
+    free(str);
+    TEST_ASSERT_TRUE(check_allocs());
+}
+
+REG_FUNCTION(print_banana) {
+    printf("Banana\n");
+    char *str = strdup("Some const string");
+    TEST_ASSERT_FALSE(check_allocs());
+    free(str);
+    TEST_ASSERT_TRUE(check_allocs());
+}
+
+REG_FUNCTION(print_cherry) {
+    printf("Cherry\n");
     char *str = strdup("Some const string");
     TEST_ASSERT_FALSE(check_allocs());
     free(str);
@@ -74,10 +100,23 @@ void test_strdup() {
 
 int main(void) {
     UNITY_BEGIN();
-    RUN_TEST(test_add_numbers);
-    RUN_TEST(test_malloc);
-    RUN_TEST(test_malloc2);
-    RUN_TEST(test_realloc);
-    RUN_TEST(test_strdup);
+
+    RUN_ALL_TESTS();
+        //     test_case_t* func_array = NULL; 
+        // /* Кроссплатформенно получаем указатель на начало массива и его размер */
+        // size_t total = get_registered_functions(&func_array); 
+        
+        // printf("Найдено функций во время компиляции: %zu\n\n", total); 
+        // \
+        // /* Перебираем массив*/ 
+        // for (size_t i = 0; i < total; i++) { 
+        //     /* Из-за особенностей выравнивания MSVC, между маркерами могут быть NULL-указатели*/ 
+        //     if (func_array[i].fn != NULL) { 
+        //         printf("Running test(%d): %s\n", (int)i, func_array[i].name);   
+        //         UnityDefaultTestRun(func_array[i].fn, func_array[i].name  , __LINE__); 
+        //     } 
+        // } 
+
+
     return UNITY_END();
 }
