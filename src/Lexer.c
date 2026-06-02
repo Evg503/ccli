@@ -33,6 +33,115 @@ static char* read_identifier(Lexer* lexer) {
     //lexer->col += len;
     return id;
 }
+
+static char* read_character(Lexer* lexer) {
+    if (!lexer || !lexer->source || lexer->source[lexer->pos] != '\'') {
+        return NULL;
+    }
+
+    lexer->pos++;
+    lexer->column++;
+
+    if (!lexer->source[lexer->pos]) {
+        return NULL;
+    }
+
+    char* result = (char*)malloc(2);
+    if (!result) {
+        return NULL;
+    }
+    if (lexer->source[lexer->pos] == '\\') {
+        lexer->pos++;  // Пропускаем backslash
+        lexer->column++;
+        
+        if (!lexer->source[lexer->pos]) {
+            // Неожиданный конец строки
+            free(result);
+            return NULL;
+        }
+        
+        char escaped_char;
+        switch (lexer->source[lexer->pos]) {
+            case 'n':  escaped_char = '\n'; break;
+            case 't':  escaped_char = '\t'; break;
+            case 'r':  escaped_char = '\r'; break;
+            case 'b':  escaped_char = '\b'; break;
+            case 'f':  escaped_char = '\f'; break;
+            case 'v':  escaped_char = '\v'; break;
+            case 'a':  escaped_char = '\a'; break;
+            case '\\': escaped_char = '\\'; break;
+            case '"':  escaped_char = '"';  break;
+            case '\'': escaped_char = '\''; break;
+            case '?':  escaped_char = '?';  break;
+            
+            case 'x': {  // Шестнадцатеричная escape-последовательность
+                lexer->pos++;
+                lexer->column++;
+                
+                if (!isxdigit(lexer->source[lexer->pos])) {
+                    free(result);
+                    return NULL;  // Ожидается hex-цифра
+                }
+                
+                char hex[3] = {lexer->source[lexer->pos], 0, 0};
+                int hex_len = 1;
+                
+                if (isxdigit(lexer->source[lexer->pos + 1])) {
+                    lexer->pos++;
+                    lexer->column++;
+                    hex[hex_len++] = lexer->source[lexer->pos];
+                }
+                escaped_char = (char)strtol(hex, NULL, 16);
+                break;
+            }
+            
+            case '0': case '1': case '2': case '3':
+            case '4': case '5': case '6': case '7': {  // Восьмеричная
+                char oct[4] = {lexer->source[lexer->pos], 0, 0, 0};
+                int oct_len = 1;
+                
+                if (lexer->source[lexer->pos + 1] >= '0' && 
+                    lexer->source[lexer->pos + 1] <= '7') {
+                    lexer->pos++;
+                    lexer->column++;
+                    oct[oct_len++] = lexer->source[lexer->pos];
+                    
+                    if (lexer->source[lexer->pos + 1] >= '0' && 
+                        lexer->source[lexer->pos + 1] <= '7') {
+                        lexer->pos++;
+                        lexer->column++;
+                        oct[oct_len++] = lexer->source[lexer->pos];
+                    }
+                }
+                escaped_char = (char)strtol(oct, NULL, 8);
+                break;
+            }
+            
+            default:
+                // Если escape-последовательность не распознана,
+                // просто копируем символ после слеша
+                lexer->pos++;
+                lexer->column++;
+                escaped_char = lexer->source[lexer->pos]; //Or error?
+        }
+        *result = escaped_char;        
+    } else {
+        *result = lexer->source[lexer->pos];
+    }
+    lexer->pos++;
+    lexer->column++;
+    result[1] = '\0';
+    if (lexer->source[lexer->pos] != '\'') {
+        free(result);
+        return NULL;
+    }
+
+    lexer->pos++;
+    lexer->column++;
+
+    return result;
+}
+
 /**
  * Парсит строку в двойных кавычках, начиная с текущей позиции лексера
  * 
@@ -287,13 +396,13 @@ Token* get_next_token(Lexer* lexer)
             ; //error
         return token;
     }
-    // if(c == '\'') {
-    //     token->value = read_character(lexer);
-    //     if(token->value)
-    //         token->type = TOKEN_CHARACTER;
-    //     else
-    //         ; //error
-    // }  
+    if(c == '\'') {
+        token->value = read_character(lexer);
+        if(token->value)
+            token->type = TOKEN_CHARACTER;
+        else
+            ; //error
+    }  
     if(c == '(') {
         token->type = TOKEN_LPAREN;
         lexer->pos++;

@@ -28,6 +28,26 @@ void test_Lexer_Number(void) {
     TEST_ASSERT_NULL(lex);
 }
 
+void test_Lexer_Character(void) {
+    Lexer *lex = NULL;
+    lex = create_Lexer_from_String("'a' '\a' '\\n' '\\\\' '\\\"' '\\\'' '\042' '\xff'" );
+    for(char *expected = "a\a\n\\\"\'\042\xff"; expected[0]; expected++) {
+        char buf[128];
+        sprintf(buf, "Testing character: '%c' (0x%02x)\n", expected[0], (unsigned char)expected[0]);
+        Token *t1 = get_next_token(lex);
+        UNITY_TEST_ASSERT(t1->type == TOKEN_CHARACTER, __LINE__, buf);
+        UNITY_TEST_ASSERT_EQUAL_CHAR(t1->value[0], expected[0], __LINE__, buf);
+        UNITY_TEST_ASSERT_EQUAL_CHAR(t1->value[1], '\0', __LINE__, buf);
+        free_Token(&t1);
+        UNITY_TEST_ASSERT_NULL(t1, __LINE__, buf);
+    }
+    Token *t2 = get_next_token(lex);
+    TEST_ASSERT(t2->type == TOKEN_EOF);
+    free_Token(&t2);
+    free_Lexer(&lex);
+    TEST_ASSERT_NULL(t2);
+    TEST_ASSERT_NULL(lex);
+}
 void test_Lexer_String(void) {
     Lexer *lex = NULL;
     lex = create_Lexer_from_String("\"Value\"");
@@ -43,6 +63,7 @@ void test_Lexer_String(void) {
     TEST_ASSERT_NULL(t2);
     TEST_ASSERT_NULL(lex);
 }
+
 
 void test_Lexer_Spaces(){
     Lexer *lex = NULL;
@@ -166,6 +187,7 @@ int main(void) {
     RUN_TEST(test_Lexer_Spaces);
     RUN_TEST(test_Lexer_Spaces2);
     RUN_TEST(test_Lexer_Keyword);
+    RUN_TEST(test_Lexer_Character);
     RUN_TEST(test_Lexer_String);
     RUN_TEST(test_Complex_Lexer);
     print_malloc_stats();
